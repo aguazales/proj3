@@ -92,14 +92,23 @@ public class MainActivity extends Activity {
  */
 class renderView implements GLSurfaceView.Renderer {
 
-	float[] cubeCF = {1,0,0,0,
-			0,1,0,0,
-			0,0,1,0,
-			0,0,0,1};
 	ByteBuffer buff;
 	FloatBuffer faceVertexBuff;
 	FloatBuffer faceColorBuff;
 	ShortBuffer faceOrderBuff;
+	FloatBuffer light0_posBuff;
+	FloatBuffer light0_colorBuff;
+	FloatBuffer light1_posBuff;
+	FloatBuffer light1_colorBuff;
+	FloatBuffer light1_dirBuff;
+
+	// light 1
+	float light0_pos[] = {25.0f, 45.0f, -46.0f, 1.0f}; // position
+	float light0_color[] = {1.0f, 1.0f, 1.0f, 1.0f}; // color
+	//light 2
+	float light1_pos[] = {0, -20, -46, 1}; // position
+	float light1_color[] = {0.5f, 1.0f, 0.06f, 1.0f}; // color
+	float light1_dir[] = {0, 1, 0}; // direction (spotlight)
 
 	float x_coord = 0;
 	float y_coord = 0;
@@ -145,6 +154,21 @@ class renderView implements GLSurfaceView.Renderer {
 		faceOrderBuff = ByteBuffer.allocateDirect(faceOrderData.length*4).order(ByteOrder.nativeOrder()).asShortBuffer();
 		faceOrderBuff.put(faceOrderData);
 		faceOrderBuff.position(0);
+		light0_posBuff = ByteBuffer.allocateDirect(faceColorData.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		light0_posBuff.put(light0_pos);
+		light0_posBuff.position(0);
+		light0_colorBuff = ByteBuffer.allocateDirect(faceColorData.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		light0_colorBuff.put(light0_pos);
+		light0_colorBuff.position(0);
+		light1_posBuff = ByteBuffer.allocateDirect(faceColorData.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		light1_posBuff.put(light0_pos);
+		light1_posBuff.position(0);
+		light1_colorBuff = ByteBuffer.allocateDirect(faceColorData.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		light1_colorBuff.put(light0_pos);
+		light1_colorBuff.position(0);
+		light1_dirBuff = ByteBuffer.allocateDirect(faceColorData.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		light1_dirBuff.put(light0_pos);
+		light1_dirBuff.position(0);
 	}
 
 
@@ -206,12 +230,27 @@ class renderView implements GLSurfaceView.Renderer {
 	 */
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		gl.glClearColor(.5f, 1.0f, 0, 1.0f);
+		gl.glClearColor (0.0f, 0.0f, 0.0f, 1.0f); /* black background */
 		gl.glShadeModel(GL10.GL_SMOOTH);
 		gl.glCullFace(GL10.GL_BACK);
 		gl.glEnable(GL10.GL_CULL_FACE);
 		gl.glEnable(GL10.GL_DEPTH_TEST);
-		
-		
+
+		/* Enable shading */
+		gl.glEnable (GL10.GL_LIGHTING);
+//		gl.glEnable (GL10.GL_NORMALIZE); /* Tell OpenGL to renormalize normal vector 
+//					after transformation */
+		//		gl.glEnable(GL10.GL_COLOR_MATERIAL);
+		//		gl.glColorMaterial(GL10.GL_FRONT, GL10.GL_AMBIENT_AND_DIFFUSE);
+		/* initialize two light sources */
+//		gl.glEnable (GL10.GL_LIGHT0);
+		gl.glLightfv (GL10.GL_LIGHT0, GL10.GL_AMBIENT, light0_colorBuff);
+		gl.glLightfv (GL10.GL_LIGHT0, GL10.GL_DIFFUSE, light0_colorBuff);
+		gl.glLightfv (GL10.GL_LIGHT0, GL10.GL_SPECULAR, light0_colorBuff);
+		gl.glEnable (GL10.GL_LIGHT1);
+		gl.glLightfv (GL10.GL_LIGHT1, GL10.GL_AMBIENT, light1_colorBuff);
+		gl.glLightfv (GL10.GL_LIGHT1, GL10.GL_DIFFUSE, light1_colorBuff);
+		gl.glLightfv (GL10.GL_LIGHT1, GL10.GL_SPECULAR, light1_colorBuff);
+		gl.glLightf (GL10.GL_LIGHT1, GL10.GL_SPOT_CUTOFF, 40);
 	}
 }
